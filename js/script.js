@@ -16,14 +16,16 @@ FSJS project 2 - List Filter and Pagination
    will only be used inside of a function, then it can be locally 
    scoped to that function.
 ***/
+const page = document.querySelector('.page');
 const pageHeader = document.querySelector('.page-header cf');
+const studentList = document.querySelector('student-list');
+
 
 
 
 /*** 
    Create the `showPage` function to hide all of the items in the 
    list except for the ten you want to show.
-
    Pro Tips: 
      - Keep in mind that with a list of 54 students, the last page 
        will only display four.
@@ -34,7 +36,14 @@ const pageHeader = document.querySelector('.page-header cf');
        that will be passed into the parens later when you call or 
        "invoke" the function 
 ***/
-
+function showPage(pageHeader) {
+   for(i=0;i<studentList.length;i++) {
+      let li = studentList[i];
+      if(li.childNodes[10]) {
+         li.style.display = 'none';
+      }
+   }
+}
 
 
 
@@ -42,7 +51,10 @@ const pageHeader = document.querySelector('.page-header cf');
    Create the `appendPageLinks function` to generate, append, and add 
    functionality to the pagination buttons.
 ***/
-
+function appendPageLinks() {
+   let pageLink = document.createElement('link');
+   page.append('pageLink');
+}
 
 
 
