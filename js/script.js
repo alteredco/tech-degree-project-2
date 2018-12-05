@@ -21,7 +21,11 @@ const pageHeader = document.querySelector('.page-header cf');
 const studentList = document.querySelector('student-list');
 
 
-
+function search() {
+   let searchBar = document.createElement('input');
+   searchBar.type = 'text';
+   searchBar.placeholder= 'Search…';
+})
 
 /*** 
    Create the `showPage` function to hide all of the items in the 
@@ -55,6 +59,7 @@ function appendPageLinks() {
    let pageLink = document.createElement('link');
    page.append('pageLink');
 }
+
 
 
 
