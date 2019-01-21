@@ -28,7 +28,8 @@ function createSearchBar() {
 createSearchBar();
 
 /*** Show selected page view of students***/
-function showPage(pageNum) {
+function showPage(currentPage) {
+   console.log(currentPage);
    // hide all students
    for(i=0; i<studentList.length; i++) {
       studentList[i].style.display = 'none';
@@ -37,6 +38,7 @@ function showPage(pageNum) {
    for(i=0; i<pageSize; i++) {
       studentIndex = pageNum * pageSize - pageSize + i;
       studentList[studentIndex].style.display = 'block';
+
    }
 };
 showPage(pageNum);
@@ -176,6 +178,13 @@ function runSearch() {
       }
       // add new pagination on search
       appendPageLinks(getResultsTotal());
+      //reset page view on deletion of search value
+      if(searchValue === '') {
+         studentDetails.forEach(function(studentDetails) {
+            studentDetails.parentNode.id = "";
+         });
+         showPage(pageNum);
+      }
    }
    //access search button
    let searchBtn = document.querySelector('.search-button');
