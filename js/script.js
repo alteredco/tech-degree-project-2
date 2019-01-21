@@ -9,10 +9,6 @@ const pageHeader = document.querySelector('.page-header');
 const studentList = document.querySelector('.student-list').getElementsByTagName('li');
 let pageSize = 10;
 let pageNum = 1;
-let pageTotal = parseInt(studentList.length / pageSize);
-if((studentList.length%pageSize)!=0){
-   pageTotal += 1;
-};
 
 /***Generate searchbox with button***/
 function createSearchBar() {
@@ -31,14 +27,7 @@ function createSearchBar() {
 }
 createSearchBar();
 
-//*** Create restart button ***//
-function restartBtn() {
-   let restartButton = document.createElement('button');
-   restartButton.className = 'refresh-button';
-   restartButton.textContent = 'Restart Search';
-}
-
-//*** Show selected page view of students***/
+/*** Show selected page view of students***/
 function showPage(pageNum) {
    // hide all students
    for(i=0; i<studentList.length; i++) {
@@ -52,14 +41,27 @@ function showPage(pageNum) {
 };
 showPage(pageNum);
 
+/*** Calculate number of pages needed for list ***/
+function getTotal() {
+   let itemTotal = studentList.length;
+   let pageTotal = parseInt(itemTotal / pageSize);
+   //  page for remainder items
+   if((itemTotal%pageSize)!=0){
+      pageTotal += 1;
+   };
+   return pageTotal;
+}
+
 /*** Generate, append and add  functionality to the pagination buttons.***/
 function appendPageLinks(total) {
+   let startPage = 1;
+   let endPage = total;
    // create ul for page buttons
    let pageRange = document.createElement('ul');
    pageRange.className = 'pagination';
    page.appendChild(pageRange);
    // create array of page numbers based on parameter
-   pageList =  Array.from(Array(total).keys());
+   let pageList =  Array.from(Array((endPage + 1) - startPage).keys()).map( i => startPage + 1);
    // create li page button links
    for(i=0; i<pageList.length; i++) {
       let pageBtn = document.createElement('li');
@@ -83,7 +85,18 @@ function appendPageLinks(total) {
       })
    }
 };
-appendPageLinks(pageTotal)
+appendPageLinks(getTotal())
+
+/***Set up debounce to use with search ***/
+let debounce = (fn, time) => {
+   let timeout;
+   return function() {
+      const functionCall = () => fn.apply(this, arguments);
+   
+      clearTimeout(timeout);
+      timeout = setTimeout(functionCall, time);
+   }
+}
 
 //*** Create no results message to be used for error handling ***//
 function noResultsHandler() {
@@ -99,12 +112,14 @@ function noResultsHandler() {
 }
 noResultsHandler();
 
-//*** Display search results upon typing in searchbox or click of search button ***//
+/*** Display search results upon typing in searchbox or click of search button ***/
 function runSearch() {
    // access input from user
    let searchInput = document.querySelector('.searchBar');
    //add event listener
-   searchInput.addEventListener('keyup', filterSearch);
+   searchInput.addEventListener('keyup',  debounce((e) => {
+         filterSearch();
+      }, 1000));
 
    // filter searches based on user input
    function filterSearch() {
@@ -114,8 +129,6 @@ function runSearch() {
       let results = false;
       let resultTotal = 0;
       let resultPageTotal = parseInt(resultTotal/pageSize);
-      // get pagination
-      let pagination = document.querySelector('.pagination');
       // get filter value
       let searchValue = searchInput.value.toLowerCase();
       //get all the names and emails of students in list
@@ -126,7 +139,7 @@ function runSearch() {
          // check and display if matching
          if(text.match(searchValue)) {
             studentDetails.parentNode.style.display = "block";
-            studentDetails.parentNode.className = "hit";
+            studentDetails.parentNode.id = "hit";
             // track result
             results = true;
             // for getting correct pagination for results
@@ -134,13 +147,10 @@ function runSearch() {
             if((resultTotal%pageSize)!=0){
                resultPageTotal += 1;
             }
-            console.log(resultPageTotal);
          } else {
             studentDetails.parentNode.style.display = "none";
-            studentDetails.parentNode.className = "miss";
+            studentDetails.parentNode.id = "miss";
          }
-         let topList = document.querySelectorAll('.hit')
-         let bottomList = document.querySelectorAll('.miss');
 
          // check and display no result  message if no results
          if(results != true || searchValue === 'null') {
@@ -149,12 +159,23 @@ function runSearch() {
             messageDiv.style.display = "none";
          }
       });
+      // get pagination
+      let pagination = document.querySelector('.pagination');
       // remove previous pagination on search
       pagination.remove(pagination);
+      // calculate the number of search results and number of pages needed 
+      function getResultsTotal() {
+         let resultsList = document.querySelectorAll('#hit')
+         let hitTotal = resultsList.length;
+         let resultsTotal = parseInt(hitTotal / pageSize);
+         //  page for remainder items
+         if((hitTotal%pageSize)!=0){
+            resultsTotal += 1;
+         };
+         return resultsTotal;
+      }
       // add new pagination on search
-
-      appendPageLinks(resultPageTotal);
-      pagination.appendChild(restartBtn());
+      appendPageLinks(getResultsTotal());
    }
    //access search button
    let searchBtn = document.querySelector('.search-button');
