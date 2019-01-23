@@ -28,16 +28,16 @@ function createSearchBar() {
 createSearchBar();
 
 /*** Show selected page view of students***/
-function showPage(currentPage, list) {
+function showPage(currentPage, listType) {
    console.log(currentPage);
    // hide all students
-   for(i=0; i<list.length; i++) {
-      list[i].style.display = 'none';
+   for(i=0; i<listType.length; i++) {
+      listType[i].style.display = 'none';
    }
    // show list of students according to selected page number and size limit
    for(i=0; i<pageSize; i++) {
       studentIndex = pageNum * pageSize - pageSize + i;
-      list[studentIndex].style.display = 'block';
+      listType[studentIndex].style.display = 'block';
 
    }
 };
@@ -123,7 +123,7 @@ function runSearch() {
    //add event listener for searchbox that debounces on keyup
    searchInput.addEventListener('keyup',  debounce((e) => {
          filterSearch();
-      }, 1000));
+      }, 500));
    //*** Filter searches based on user input
    function filterSearch() {
       // access no result message
