@@ -28,20 +28,20 @@ function createSearchBar() {
 createSearchBar();
 
 /*** Show selected page view of students***/
-function showPage(currentPage) {
+function showPage(currentPage, list) {
    console.log(currentPage);
    // hide all students
-   for(i=0; i<studentList.length; i++) {
-      studentList[i].style.display = 'none';
+   for(i=0; i<list.length; i++) {
+      list[i].style.display = 'none';
    }
    // show list of students according to selected page number and size limit
    for(i=0; i<pageSize; i++) {
       studentIndex = pageNum * pageSize - pageSize + i;
-      studentList[studentIndex].style.display = 'block';
+      list[studentIndex].style.display = 'block';
 
    }
 };
-showPage(pageNum);
+showPage(pageNum, studentList);
 
 /*** Calculate number of pages needed for list ***/
 function getTotal() {
@@ -55,7 +55,7 @@ function getTotal() {
 }
 
 /*** Generate, append and add  functionality to the pagination buttons.***/
-function appendPageLinks(total) {
+function appendPageLinks(total, listType) {
    let startPage = 1;
    let endPage = total;
    // create ul for page buttons
@@ -83,11 +83,13 @@ function appendPageLinks(total) {
          e.target.classList.add('active');
          // display correct section of list for clicked page button
          pageNum = e.target.textContent;
-         showPage(pageNum);
+         showPage(pageNum, listType);
       })
    }
 };
-appendPageLinks(getTotal())
+
+/***Paginates the full list of students ***/
+appendPageLinks(getTotal(), studentList);
 
 /***Set up debounce to use with search ***/
 let debounce = (fn, time) => {
@@ -100,7 +102,7 @@ let debounce = (fn, time) => {
    }
 }
 
-//*** Create no results message to be used for error handling ***//
+/*** Create no results message to be used for error handling ***/
 function noResultsHandler() {
    let messageDiv = document.createElement('div');
    let errMess = "There were no matches for your search";
@@ -118,42 +120,33 @@ noResultsHandler();
 function runSearch() {
    // access input from user
    let searchInput = document.querySelector('.searchBar');
-   //add event listener
+   //add event listener for searchbox that debounces on keyup
    searchInput.addEventListener('keyup',  debounce((e) => {
          filterSearch();
       }, 1000));
-
-   // filter searches based on user input
+   //*** Filter searches based on user input
    function filterSearch() {
-      // get the no result message
+      // access no result message
       let messageDiv = document.querySelector('.error-message');
       // for tracking if results or not
       let results = false;
-      let resultTotal = 0;
-      let resultPageTotal = parseInt(resultTotal/pageSize);
-      // get filter value
+      // access user search value
       let searchValue = searchInput.value.toLowerCase();
-      //get all the names and emails of students in list
+      //access all the names and emails of students in list
       let studentDetails = document.querySelectorAll('.student-details')
       // loop through student details
       studentDetails.forEach(function(studentDetails) {
          let text = studentDetails.innerText.toLowerCase();
-         // check and display if matching
+         // check and display if matching user search value
          if(text.match(searchValue)) {
             studentDetails.parentNode.style.display = "block";
             studentDetails.parentNode.id = "hit";
-            // track result
+            // track  if result
             results = true;
-            // for getting correct pagination for results
-            resultTotal += 1
-            if((resultTotal%pageSize)!=0){
-               resultPageTotal += 1;
-            }
          } else {
             studentDetails.parentNode.style.display = "none";
             studentDetails.parentNode.id = "miss";
          }
-
          // check and display no result  message if no results
          if(results != true || searchValue === 'null') {
             messageDiv.style.display = "block";
@@ -161,13 +154,14 @@ function runSearch() {
             messageDiv.style.display = "none";
          }
       });
-      // get pagination
+      // access pagination ul
       let pagination = document.querySelector('.pagination');
-      // remove previous pagination on search
+      // remove previous pagination ul on search
       pagination.remove(pagination);
+      //access results of search
+      let resultsList = document.querySelectorAll('#hit')
       // calculate the number of search results and number of pages needed 
       function getResultsTotal() {
-         let resultsList = document.querySelectorAll('#hit')
          let hitTotal = resultsList.length;
          let resultsTotal = parseInt(hitTotal / pageSize);
          //  page for remainder items
@@ -176,14 +170,15 @@ function runSearch() {
          };
          return resultsTotal;
       }
-      // add new pagination on search
-      appendPageLinks(getResultsTotal());
-      //reset page view on deletion of search value
+      // Paginates search results
+      appendPageLinks(getResultsTotal(), resultsList);
+
+      //reset page view on clearing of search box
       if(searchValue === '') {
          studentDetails.forEach(function(studentDetails) {
             studentDetails.parentNode.id = "";
          });
-         showPage(pageNum);
+         showPage(pageNum, studentList);
       }
    }
    //access search button
